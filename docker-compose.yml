@@ -1,5 +1,18 @@
 version: '3.8'
 services:
+  postgres:
+    image: postgres:10.3
+    restart: always
+    environment:
+      - POSTGRES_USER=DEFAULT_USER
+      - POSTGRES_PASSWORD=DEFAULT_PASS
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+volumes:
+  postgres:
+
   rabbits:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbits'
