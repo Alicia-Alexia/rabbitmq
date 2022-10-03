@@ -1,24 +1,17 @@
 version: '3.8'
 services:
-  postgres:
-    image: postgres:10.3
+  db:
+    image: postgres:14.2-alpine
     restart: always
-    environment:
-      - POSTGRES_USER=DEFAULT_USER
-      - POSTGRES_PASSWORD=DEFAULT_PASS
-    volumes:
-      - postgres:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
-volumes:
-  postgres:
+      - 5432:5432
 
   rabbits:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbits'
     environment:
-      - "RABBITMQ_DEFAULT_PASS=RABBITMQ_DEFAULT_PASS"
-      - "RABBITMQ_DEFAULT_USER=RABBITMQ_DEFAULT_USER"
+      - "RABBITMQ_DEFAULT_PASS=password"
+      - "RABBITMQ_DEFAULT_USER=username"
     ports:
       - 5672:5672
       - 15672:15672
@@ -31,4 +24,3 @@ volumes:
 networks:
   rabbitmq_go_net:
     driver: bridge
-
