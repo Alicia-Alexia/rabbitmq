@@ -1,50 +1,19 @@
 const EventService = require("../service/event");
 const eventService = new EventService();
-var amqp = require('amqplib');
-require('dotenv').config()
-const urlRabbit = process.env.RABBITURL
-
-async function clientMessage(type, subscription_id) {
-    amqp.connect(urlRabbit)
-        .then(function (conn) {
-            return conn.createChannel();
-        })
-        .then(function (ch) {
-            setInterval(function () {
-                console.log(" Mensagem enviada ");
-                ch.sendToQueue(type, Buffer.from(`user create  ${type},${subscription_id} `));
-            }, 2000)
-        })
-}
-
-async function consumerMessage(type) {
-    amqp.connect(urlRabbit)
-        .then(function (conn) {
-            return conn.createChannel();
-        })
-        .then(function (ch) {
-            //subscription_restarted, subscription_canceled  subscription_purchased
-            ch.prefetch(1) // para mandar uma mensagem por vez
-            ch.consume(type, function (msg) {
-                setTimeout(function () {
-                    console.log('........ Mensagem recebida --------', new Date(),
-                        msg.content.toString());
-                    ch.ack(msg); // mensagem consumida
-                    //ch.nack(msg);
-                }, 2000)
-            })
-        })
-}
-
-
+const clients = require("../messages/client")
+const client = new clients()
+const consumers = require("../messages/consumer")
+const consumer = new consumers()
 
 class CreateEvent {
-
     async createEvent(req, res) {
-        const { type, subscription_id } = req.body;
-        clientMessage(type, subscription_id)
-        consumerMessage(type)
         try {
+            const { type, subscription_id } = req.body;
+            await client.add({
+                type: type,
+                subscription_id: subscription_id
+            })
+            await consumer.add({ type: type })
 
             const event = await eventService.add({
                 type: type,
@@ -57,6 +26,5 @@ class CreateEvent {
         }
     }
 }
-
 
 module.exports = CreateEvent;

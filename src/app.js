@@ -1,12 +1,6 @@
 const express = require ("express")
-
 const  router = require ("./router/router")
-
 const app = express();
-
-app.get("/", (req, res) => {
-  res.status(200).send("App rodando!");
-});
 
 app.use(express.json());
 app.use(router);
